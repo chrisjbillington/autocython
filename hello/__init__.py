@@ -3,7 +3,10 @@ import sys
 if sys.version_info.major == 2:
     str = unicode
 
-def ensure_extensions_compiled(names):
+def ensure_extensions_compiled(names, msg=None):
+    """Ensure the Cython extensions with the given list of names is compiled, and
+    compile by running setup.py if not. Print msg to stderr if compilation is
+    required."""
     import os
     import shutil
     from os.path import exists, getmtime
@@ -25,6 +28,8 @@ def ensure_extensions_compiled(names):
         if (not exists(extension_so)
                 or getmtime(extension_so) < getmtime(extension_pyx)):
             current_folder = os.getcwd()
+            if msg is not None:
+                sys.stderr.write(msg + '\n')
             try:
                 os.chdir(this_folder)
                 cmd = sys.executable + " setup.py build_ext --inplace"
@@ -33,11 +38,13 @@ def ensure_extensions_compiled(names):
                 if os.system(cmd) != 0:
                     msg = ("Couldn't compile cython extension. If you are on " +
                            "Windows, ensure you have the following conda " +
-                           "packages: mingw, libpython, cython")
+                           "packages: mingw, libpython, cython. If on another "
+                           "platform, ensure you have gcc, libpython, and " +
+                           "cython, from conda or otherwise")
                     raise RuntimeError(msg)
                 shutil.rmtree('build')
                 os.unlink(extension_c)
             finally:
                 os.chdir(current_folder)
 
-ensure_extensions_compiled(['hello'])
+ensure_extensions_compiled(['hello'], 'extenion not compiled, compiling...')

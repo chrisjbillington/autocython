@@ -34,17 +34,24 @@ def ensure_extensions_compiled(names, msg=None):
                 os.chdir(this_folder)
                 cmd = sys.executable + " setup.py build_ext --inplace"
                 if os.name == 'nt':
-                    cmd += ' --compiler=mingw32'
+                    cmd += ' --compiler=msvc'
                 if os.system(cmd) != 0:
-                    msg = ("Couldn't compile cython extension. If you are on " +
-                           "Windows, ensure you have the following conda " +
-                           "packages: mingw, libpython, cython. If on another "
-                           "platform, ensure you have gcc, libpython, and " +
-                           "cython, from conda or otherwise")
+                    msg = ("""Couldn't compile cython extension. If you are on
+                           Windows, ensure you have the following conda packages:
+                           libpython, cython, and have installed the appropriate
+                           Microsoft visual C or visual studio for your version of
+                           Python. If on another platform, ensure you have gcc,
+                           libpython, and cython, from conda or otherwise""")
                     raise RuntimeError(msg)
-                shutil.rmtree('build')
-                os.unlink(extension_c)
+                try:
+                    shutil.rmtree('build')
+                except Exception:
+                    pass
+                try:
+                    os.unlink(extension_c)
+                except Exception:
+                    pass
             finally:
                 os.chdir(current_folder)
 
-ensure_extensions_compiled(['hello'], 'extenion not compiled, compiling...')
+ensure_extensions_compiled(['hello'], 'Extension not compiled, compiling...')

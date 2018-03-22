@@ -10,6 +10,10 @@ PY2 = sys.version_info.major == 2
 if PY2:
     str = unicode
 
+if PY2 and not sys.version_info.minor == 7:
+    raise RuntimeError("Only Python 2 version supported is 2.7")
+if sys.version_info.major == 3 and sys.version_info.minor < 5:
+    raise RuntimeError("Minimum supported Python 3 is 3.5")
 
 if PY2:
     PY2_SUFFIX = b'_py27_{}_{}'.format(sys.platform, platform.architecture()[0])

@@ -10,7 +10,6 @@
 #     cython -a myfile.pyx
 
 import sys
-PY2 = sys.version_info.major == 2
 
 # Setuptools monkeypatches distutils to be able to find the visual C compiler on
 # windows:
@@ -19,15 +18,12 @@ from distutils.core import setup
 from distutils.extension import Extension
 from Cython.Distutils import build_ext
 import platform
+from autocython import PY2_SUFFIX
 
-if PY2:
-    PY2_SUFFIX = '_py27_{}_{}'.format(sys.platform, platform.architecture()[0])
-else:
-    PY2_SUFFIX = ''
-
-ext_modules = [Extension("hello" + PY2_SUFFIX, ["hello.pyx"])]
+ext_modules = [Extension("hello" + PY2_SUFFIX, ["hello.pyx"]),
+               Extension("goodbye" + PY2_SUFFIX, ["goodbye.pyx"])]
 setup(
-    name = "hello" + PY2_SUFFIX,
+    name = "hello_cython",
     cmdclass = {"build_ext": build_ext},
     ext_modules = ext_modules,
 )

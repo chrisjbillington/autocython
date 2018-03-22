@@ -1,2 +1,2 @@
-from hello.hello import hello
+from hello import hello
 hello()

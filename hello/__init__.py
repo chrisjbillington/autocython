@@ -1,12 +1,22 @@
 from __future__ import print_function, unicode_literals, division, absolute_import
 import sys
-if sys.version_info.major == 2:
+import platform
+import importlib
+PY2 = sys.version_info.major == 2
+if PY2:
     str = unicode
+
+if PY2:
+    PY2_SUFFIX = '_py27_{}_{}'.format(sys.platform, platform.architecture()[0])
+else:
+    PY2_SUFFIX = ''
 
 def ensure_extensions_compiled(names, msg=None):
     """Ensure the Cython extensions with the given list of names is compiled, and
     compile by running setup.py if not. Print msg to stderr if compilation is
-    required."""
+    required. Assumes that python 2 files have a suffix PY2_SUFFIX so that .so and
+    .pyd files can exist in the same folder for multiple platforms. This is not
+    neccesary on Python 3, which does this already."""
     import os
     import shutil
     from os.path import exists, getmtime
@@ -23,7 +33,7 @@ def ensure_extensions_compiled(names, msg=None):
                 ext_suffix = '.pyd'
             else:
                 ext_suffix = '.so'
-        extension_so += ext_suffix
+        extension_so = extension_so + PY2_SUFFIX + ext_suffix
         extension_c = os.path.join(this_folder, name + '.c')
         if (not exists(extension_so)
                 or getmtime(extension_so) < getmtime(extension_pyx)):
@@ -39,11 +49,11 @@ def ensure_extensions_compiled(names, msg=None):
                     msg = ' '.join(s.strip() for s in """Couldn't compile cython
                           extension. If you are on Windows, ensure you have the
                           following conda packages: libpython, cython, and have
-                          installed the appropriate Microsoft visual C or visual
-                          studio for your version of Python. If on another
-                          platform, ensure you have gcc, libpython, and cython,
-                          from conda or otherwise. See above for the specific error
-                          that occured""")
+                          installed the appropriate Microsoft Visual C or Visual
+                          Studio Build Tools for your version of Python. If on
+                          another platform, ensure you have gcc, libpython, and
+                          cython, from conda or otherwise. See above for the
+                          specific error that occured""")
                     raise RuntimeError(msg)
                 try:
                     shutil.rmtree('build')
@@ -56,4 +66,13 @@ def ensure_extensions_compiled(names, msg=None):
             finally:
                 os.chdir(current_folder)
 
+
+def import_extension(name):
+    """Import the extension, abstracting the platform"""
+    name = name + PY2_SUFFIX
+    return importlib.import_module(__name__ + '.' + name)
+
+
 ensure_extensions_compiled(['hello'], 'Extension not compiled, compiling...')
+module = import_extension('hello')
+hello = module.hello

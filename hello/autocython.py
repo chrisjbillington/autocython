@@ -94,7 +94,7 @@ def compile_extensions(folder, names):
                   Studio Build Tools for your version of Python. If on
                   another platform, ensure you have gcc, libpython, and
                   cython, from conda or otherwise. See above for the
-                  specific error that occured"""
+                  specific error that occured."""
             msg = ' '.join(s.strip() for s in msg.splitlines())
             raise RuntimeError(msg)
         try:

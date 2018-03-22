@@ -41,14 +41,14 @@ def compute_hashes(pyx_files, so_files):
 
 def get_last_compile_state(folder):
     try:
-        with open(os.path.join(folder, 'compile_state.json'), 'r') as f:
+        with open(os.path.join(folder, 'autocython_compile_state.json'), 'r') as f:
             return json.load(f)
     except (IOError, ValueError):
         return {}
 
 
 def save_compile_state(folder, compile_state):
-    with open(os.path.join(folder, 'compile_state.json'), 'w') as f:
+    with open(os.path.join(folder, 'autocython_compile_state.json'), 'w') as f:
         json.dump(compile_state, f, indent=4, sort_keys=True)
 
 
@@ -113,7 +113,7 @@ def compile_extensions(folder, names):
 
 def ensure_extensions_compiled(folder, names=None):
     """Ensure the Cython extensions in the given folder with the given list of
-    names are compiled, and if not (or if they are in need up recompilation),
+    names are compiled, and if not (or if they are in need of recompilation),
     compile them by running setup.py (assumed to be in the same folder). If no
     names are given, they will be inferred from any .pyx files in the folder. It is
     assumed that each cython file is called <name>.pyx, and that each extension (as
@@ -149,6 +149,7 @@ def ensure_extensions_compiled(folder, names=None):
 
 def platform_specific_import(fullname):
     """Import the extension, abstracting the platform. This is not neccesary on
-    Python 3."""
+    Python 3, which does this automatically if you use an ordinary import. fullname
+    must be a fully qualified, absolute import."""
     name = fullname + PY2_SUFFIX
     return importlib.import_module(name)

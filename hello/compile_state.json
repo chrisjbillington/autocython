@@ -1,0 +1,18 @@
+{
+    "goodbye.cpython-36m-x86_64-linux-gnu.so": {
+        "pyx": "f483d9d8c51f7f5d190eb2ada6923560a3691eb156dedf51505242eeb5c7503e", 
+        "so": "d4f3bc721f8b27fbf61e2066f34a83fff52e93aa6380231265ac717b0b57efa4"
+    }, 
+    "goodbye_py27_linux2_64bit.so": {
+        "pyx": "f483d9d8c51f7f5d190eb2ada6923560a3691eb156dedf51505242eeb5c7503e", 
+        "so": "b9101c446b1c657e4e9c2fafa2f053127d3aac6549acf476d9c73c28fdf4925f"
+    }, 
+    "hello.cpython-36m-x86_64-linux-gnu.so": {
+        "pyx": "30ebc9b2cb19c2c5017004cffdc10fa64bfbcb96fa607c278286dbf30621764c", 
+        "so": "3e9a60b08e9ec2c310b6aab98baaa9ba7bf42c6aa0ab4fd9f67c2941246d0110"
+    }, 
+    "hello_py27_linux2_64bit.so": {
+        "pyx": "30ebc9b2cb19c2c5017004cffdc10fa64bfbcb96fa607c278286dbf30621764c", 
+        "so": "3bc54f260c6fe4986fc772408685706fe7868e1b5a190ee22ae5ac16c01d43e1"
+    }
+}

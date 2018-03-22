@@ -36,12 +36,14 @@ def ensure_extensions_compiled(names, msg=None):
                 if os.name == 'nt':
                     cmd += ' --compiler=msvc'
                 if os.system(cmd) != 0:
-                    msg = ("""Couldn't compile cython extension. If you are on
-                           Windows, ensure you have the following conda packages:
-                           libpython, cython, and have installed the appropriate
-                           Microsoft visual C or visual studio for your version of
-                           Python. If on another platform, ensure you have gcc,
-                           libpython, and cython, from conda or otherwise""")
+                    msg = ' '.join(s.strip() for s in """Couldn't compile cython
+                          extension. If you are on Windows, ensure you have the
+                          following conda packages: libpython, cython, and have
+                          installed the appropriate Microsoft visual C or visual
+                          studio for your version of Python. If on another
+                          platform, ensure you have gcc, libpython, and cython,
+                          from conda or otherwise. See above for the specific error
+                          that occured""")
                     raise RuntimeError(msg)
                 try:
                     shutil.rmtree('build')

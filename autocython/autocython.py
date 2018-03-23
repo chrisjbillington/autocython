@@ -44,13 +44,16 @@ def file_hash(filename):
     return h.hexdigest()
 
 
-def compute_hashes(pyx_files, so_files):
+def compute_hashes(folder, pyx_files, so_files):
     hashes = {}
+    setup_py = os.path.join(folder, 'setup.py')
+    setup_hash = file_hash(setup_py)
     for pyx_file, so_file in zip(pyx_files, so_files):
         if os.path.exists(so_file):
             so_relpath = os.path.split(so_file)[1]
             hashes[so_relpath] = {'pyx': file_hash(pyx_file),
-                                  'so': file_hash(so_file)}
+                                  'so': file_hash(so_file),
+                                  'setup.py': setup_hash}
     return hashes
 
 
@@ -69,10 +72,10 @@ def save_compile_state(folder, compile_state):
 
 def hashes_valid(folder, pyx_files, so_files):
     """Check if the compiled extensions are valid, by comparing the hash of the pyx
-    files and so files at last compilation to what they are now. Return False if
-    any so file does not exist or has a different hash"""
+    files and so files, as well as setup.py, at last compilation to what they are
+    now. Return False if any so file does not exist or has a different hash"""
     compile_state = get_last_compile_state(folder)
-    current_state = compute_hashes(pyx_files, so_files)
+    current_state = compute_hashes(folder, pyx_files, so_files)
     for so_file in so_files:
         so_relpath = os.path.split(so_file)[1]
         if so_relpath not in compile_state or so_relpath not in current_state:
@@ -84,7 +87,7 @@ def hashes_valid(folder, pyx_files, so_files):
 
 def update_hashes(folder, pyx_files, so_files):
     compile_state = get_last_compile_state(folder)
-    current_state = compute_hashes(pyx_files, so_files)
+    current_state = compute_hashes(folder, pyx_files, so_files)
     for so_relpath in list(compile_state.keys()):
         if not os.path.exists(os.path.join(folder, so_relpath)):
             del compile_state[so_relpath]

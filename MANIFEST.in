@@ -1,0 +1,5 @@
+include LICENSE
+include example/example.py
+include example/hello_package/hello_module.pyx
+include example/hello_package/__init__.py
+include example/hello_package/setup.py

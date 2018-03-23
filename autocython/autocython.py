@@ -1,3 +1,16 @@
+#####################################################################
+#                                                                   #
+# autocython.py                                                     #
+#                                                                   #
+# Copyright 2018, Chris Billington                                  #
+#                                                                   #
+# This file is part of the autocython project (see                  #
+# https://bitbucket.org/cbillington/autocython) and is licensed     #
+# under  the Simplified BSD License. See the license.txt file in    #
+# the root of the project for the full license.                     #
+#                                                                   #
+#####################################################################
+
 from __future__ import print_function, unicode_literals, division, absolute_import
 import sys
 import os
@@ -15,10 +28,12 @@ if PY2 and not sys.version_info.minor == 7:
 if sys.version_info.major == 3 and sys.version_info.minor < 5:
     raise RuntimeError("Minimum supported Python 3 is 3.5")
 
+
 if PY2:
-    PY2_SUFFIX = b'_py27_{}_{}'.format(sys.platform, platform.architecture()[0])
+    PLATFORM_SUFFIX = b'_py27_{}_{}'.format(sys.platform,
+                                            platform.architecture()[0])
 else:
-    PY2_SUFFIX = ''
+    PLATFORM_SUFFIX = ''
 
 
 def file_hash(filename):
@@ -87,14 +102,16 @@ def compile_extensions(folder, names):
         if os.name == 'nt':
             cmd += ' --compiler=msvc'
         if os.system(cmd) != 0:
-            msg = """Couldn't compile cython
-                  extension. If you are on Windows, ensure you have the
-                  following conda packages: libpython, cython, and have
-                  installed the appropriate Microsoft Visual C or Visual
-                  Studio Build Tools for your version of Python. If on
-                  another platform, ensure you have gcc, libpython, and
-                  cython, from conda or otherwise. See above for the
-                  specific error that occured."""
+            msg = """Couldn't compile cython extension. If you are on Windows,
+                  ensure you have the following conda packages: libpython, cython,
+                  and have installed the appropriate Microsoft Visual C or Visual
+                  Studio Build Tools for your version of Python. If on another
+                  platform, ensure you have gcc and cython, from conda or
+                  otherwise. See above for the specific error that occured. In
+                  addition, it is crucial that your setup.py has a 'import
+                  setuptools' line before importing anything from distutils, as
+                  setuptools patches distutils in order to be able to find the
+                  Microsoft compilers on Windows."""
             msg = ' '.join(s.strip() for s in msg.splitlines())
             raise RuntimeError(msg)
         try:
@@ -114,14 +131,17 @@ def compile_extensions(folder, names):
 def ensure_extensions_compiled(folder, names=None):
     """Ensure the Cython extensions in the given folder with the given list of
     names are compiled, and if not (or if they are in need of recompilation),
-    compile them by running setup.py (assumed to be in the same folder). If no
-    names are given, they will be inferred from any .pyx files in the folder. It is
-    assumed that each cython file is called <name>.pyx, and that each extension (as
-    specified in setup.py) is called <name><PY2_SUFFUX>, where PY2_SUFFIX is
-    defined at the top of this file, and specifies the platform details for Python
-    2, allowing platform_specific_import to import the correct version of the
-    extension if multiple versions exist for different platforms. In Python 3
-    PY2_SUFFIX is the empty string since Python 3 does this automatically."""
+    compile them by running ``setup.py`` (assumed to be in the same folder). If no
+    names are given, they will be inferred from any ``.pyx`` files in the folder.
+    It is assumed that each cython file is called ``<name>.pyx``, and that each
+    extension (as specified in ``setup.py``) is called ``<name><PLATFORM_SUFFIX>``,
+    where :attr:`~autocython.PLATFORM_SUFFIX` is a constant defined in this
+    module that specifies the platform details for Python 2, allowing
+    :func:`~autocython.import_extension` to import the correct version of
+    the extension if multiple versions exist for different platforms. In Python
+    3 :attr:`~autocython.PLATFORM_SUFFIX` is the empty string since Python 3
+    does a similar thing automatically."""
+
     from distutils.sysconfig import get_config_var
     if isinstance(names, str) or isinstance(names, bytes):
         names = [names]
@@ -137,7 +157,7 @@ def ensure_extensions_compiled(folder, names=None):
         ext_suffix = get_config_var('EXT_SUFFIX')
         if ext_suffix is None:
             ext_suffix = '.pyd' if os.name == 'nt' else '.so'
-        extension_so = extension_so + PY2_SUFFIX + ext_suffix
+        extension_so = extension_so + PLATFORM_SUFFIX + ext_suffix
         pyx_files.append(extension_pyx)
         so_files.append(extension_so)
     if not hashes_valid(folder, pyx_files, so_files):
@@ -147,9 +167,11 @@ def ensure_extensions_compiled(folder, names=None):
         update_hashes(folder, pyx_files, so_files)
 
 
-def platform_specific_import(fullname):
-    """Import the extension, abstracting the platform. This is not neccesary on
-    Python 3, which does this automatically if you use an ordinary import. fullname
-    must be a fully qualified, absolute import."""
-    name = fullname + PY2_SUFFIX
+def import_extension(fullname):
+    """Import the extension, after appending :attr:`~autocython.PLATFORM_SUFFIX` in
+    order to ensure we get the right version for our platform. This is not
+    neccesary on Python 3, which does a similar thing automatically if you use an
+    ordinary import (On Python 3 :attr:`~autocython.PLATFORM_SUFFIX` is an empty
+    string). ``fullname`` must be a fully qualified, absolute import."""
+    name = fullname + PLATFORM_SUFFIX
     return importlib.import_module(name)

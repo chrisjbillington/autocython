@@ -10,10 +10,10 @@ if os.path.exists(os.path.join(grandparent_folder, 'autocython')):
     sys.path.insert(0, grandparent_folder)
 
 
-from autocython import ensure_extensions_compiled, platform_specific_import
+from autocython import ensure_extensions_compiled, import_extension
 
 this_folder = os.path.dirname(os.path.abspath(__file__))
 
 ensure_extensions_compiled(this_folder)
-module = platform_specific_import('hello_package.hello_module')
+module = import_extension('hello_package.hello_module')
 hello = module.hello

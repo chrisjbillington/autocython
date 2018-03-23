@@ -1,6 +1,6 @@
 
 ========================
-autopython |release|
+autocython |release|
 ========================
 
 `Chris Billington <mailto:chrisjbillington@gmail.com>`_, |today|

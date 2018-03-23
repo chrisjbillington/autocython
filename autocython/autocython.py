@@ -180,3 +180,4 @@ def import_extension(fullname):
     module = importlib.import_module(name)
     # Make available to ordinary imports:
     sys.modules[fullname] = module
+    return module

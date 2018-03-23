@@ -172,6 +172,11 @@ def import_extension(fullname):
     order to ensure we get the right version for our platform. This is not
     neccesary on Python 3, which does a similar thing automatically if you use an
     ordinary import (On Python 3 :attr:`~autocython.PLATFORM_SUFFIX` is an empty
-    string). ``fullname`` must be a fully qualified, absolute import."""
+    string). ``fullname`` must be a fully qualified, absolute import. This function
+    also inserts the module into sys.modules under the name fullname, and hence it
+    will be available for ordinary import without this function, so long as this
+    function is called once first (say in the ``__init__.py`` of the package)"""
     name = fullname + PLATFORM_SUFFIX
-    return importlib.import_module(name)
+    module = importlib.import_module(name)
+    # Make available to ordinary imports:
+    sys.modules[fullname] = module

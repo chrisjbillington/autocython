@@ -83,6 +83,14 @@ changes.
 Example usage
 -------------
 
+Below is an example of how to use autocython from a script. All recompilation is triggered by imports.
+
+.. note::
+    You can also check and trigger recompilation by running ``python -m
+    autocython`` in the directory containing the ``.pyx`` files and your
+    ``setup.py``. This can be a more convenient way to compile for a specific
+    program than having to actually run the program doing the imports.
+
 This example has a top-level script ``example.py`` which imports the ``hello``
 function from a package ``hello_package``:
 

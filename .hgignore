@@ -3,3 +3,6 @@ syntax: glob
 *.json
 *.so
 doc/build/*
+autocython/__version__.py
+dist/*
+autocython.egg-info/*

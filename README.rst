@@ -1,5 +1,5 @@
 
-autocython 1.0
+autocython 1.1
 **************
 
 `View on PyPI <http://pypi.python.org/pypi/autocython>`_
@@ -44,7 +44,7 @@ The similarities end there. As mentioned, you have to write your own
 have a Cython extension that doesn’t need at least some customisation,
 and that customisation might as well go in a separate file than in a
 call to ``pyx_import``. See the example below for how to write a
-setup.py that works with *autocython*.
+setup.py that works with ``autocython``.
 
 ``autocython`` expects you to keep all the compiled extensions in the
 same directory, even for different versions of Python and platforms.

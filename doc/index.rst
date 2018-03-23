@@ -49,7 +49,7 @@ The similarities end there. As mentioned, you have to write your own ``setup.py`
 don't see this as much of a drawback, it's rare that I have a Cython extension that
 doesn't need at least some customisation, and that customisation
 might as well go in a separate file than in a call to ``pyx_import``. See the example
-below for how to write a setup.py that works with `autocython`.
+below for how to write a setup.py that works with ``autocython``.
 
 ``autocython`` expects you to keep all the compiled extensions in the same directory,
 even for different versions of Python and platforms. Whilst keeping multiple

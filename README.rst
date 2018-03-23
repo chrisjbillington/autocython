@@ -2,20 +2,9 @@
 autocython 1.0
 **************
 
-Chris Billington, Mar 23, 2018
-
-* Installation
-
-* Introduction
-
-* Example usage
-
-* Module reference
-
 `View on PyPI <http://pypi.python.org/pypi/autocython>`_
 | `View on BitBucket <https://bitbucket.org/cbillington/autocython>`_
 | `Read the docs <http://autocython.readthedocs.org>`_
-
 
 Installation
 ============

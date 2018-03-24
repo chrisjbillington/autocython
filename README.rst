@@ -6,22 +6,17 @@ autocython 1.1
 | `View on BitBucket <https://bitbucket.org/cbillington/autocython>`_
 | `Read the docs <http://autocython.readthedocs.org>`_
 
-Installation
-============
+* Introduction
 
-to install ``autocython``, run:
+* Installation
 
-::
+* Example usage
 
-   $ pip3 install autocython
+* Limitations
 
-or to install from source:
+* Module reference
 
-::
-
-   $ python3 setup.py install
-
-Note: Works with Python 2.7 or Python 3.4+
+View on PyPI | View on BitBucket | Read the docs
 
 
 Introduction
@@ -78,16 +73,34 @@ Note: As of March 2018, the compilers needed on Windows are available at:
   C++ Build Tools”, from http://aka.ms/BuildTools
 
 
+Installation
+============
+
+to install ``autocython``, run:
+
+::
+
+   $ pip3 install autocython
+
+or to install from source:
+
+::
+
+   $ python3 setup.py install
+
+Note: Works with Python 2.7 or Python 3.4+
+
+
 Example usage
 =============
 
-Below is an example of how to use autocython from a script. All
+Below is an example of how to use autocython in a package. All
 recompilation is triggered by imports.
 
 Note: You can also check and trigger recompilation by running ``python -m
   autocython`` in the directory containing the ``.pyx`` files and your
   ``setup.py``. This can be a more convenient way to compile for a
-  specific program than having to actually run the program doing the
+  specific platform than having to actually run the program doing the
   imports.
 
 This example has a top-level script ``example.py`` which imports the
@@ -101,8 +114,8 @@ This example has a top-level script ``example.py`` which imports the
    hello()
 
 That package’s ``__init__.py`` imports the ``hello`` function from a
-Cython extension ``hello_module.pyx``using ``autocython``, after using
-all extensions in the folder are up to date:
+Cython extension ``hello_module.pyx`` using ``autocython``, after
+ensuring all extensions in the folder are up to date:
 
 ::
 
@@ -112,14 +125,15 @@ all extensions in the folder are up to date:
    from autocython import ensure_extensions_compiled, import_extension
    this_folder = os.path.dirname(os.path.abspath(__file__))
    ensure_extensions_compiled(this_folder)
-   module = import_extension('hello_package.hello_module')
-   hello = module.hello
+   hello_module = import_extension('hello_package.hello_module')
+   hello = hello_module.hello
 
 Note that it is important that the import line given to
-``import_extension`` is a fully qualified, absolute import. If you are
-only using Python 3, ``import_extension()`` is unnecessary and you can
-just use a normal import line (though you should still use it if your
-code needs to run on both Python 2 and 3)
+``import_extension()`` is a fully qualified, absolute import. If you
+are only using Python 3, ``import_extension()`` is unnecessary and you
+can just use a normal import line (though you should still use
+``import_extension()`` if your code needs to run on both Python 2 and
+3)
 
 The Cython extension in the package is:
 
@@ -150,7 +164,7 @@ the extension:
        ext_modules = ext_modules,
    )
 
-Use of ``setuptools`` is crucial on Windows, otherwise ``distutils``
+Use of ``setuptools`` is crucial on Windows, otherwise compilation
 will not be able to find the Microsoft compilers. Importing
 ``PLATFORM_SUFFIX`` and appending it to the extension name allows each
 version of the extension to have a platform- specific unique name on
@@ -186,10 +200,55 @@ The result of all this is:
    hello_module_py27_linux2_64bit.so             __init__.pyc
 
 
+Limitations
+===========
+
+Note: The following limitation only applies to Python 2.
+
+When importing an extension from a package, provided that the
+package’s ``__init__.py`` uses ``import_extension()``, then the
+extension will be available for ordinary import. That is, in the above
+example, if ``example.py`` had instead imported the hello function
+with the line:
+
+::
+
+   from hello_package.hello_module import hello
+   hello()
+
+everything would have still been fine. However, importing extensions
+in the following way does not in general work with ``autocython``:
+
+::
+
+   import hello_package.hello_module
+   hello_package.hello_module.hello()
+
+This may fail with ``AttributeError: 'module' object has no attribute
+'hello_module'``, since even though the import succeeded, Python
+thinks that ``hello_package.hello_module`` is getting an attribute
+from the ``hello_package``, as opposed to being the name of a
+submodule. This is a side effect of ``import_extension()`` renaming
+the extension module after import to remove ``PLATFORM_SUFFIX``.
+
+The workaround, as done in the above example, is to ensure that
+``hello_module`` *is* an attribute of ``hello_package``, by making the
+import line in your package’s ``__init__.py`` look like:
+
+::
+
+   hello_module = import_extension('hello_package.hello_module')
+
+with the extension module assigned to a variable with the same name as
+the extension module itself. If you do this then importers will be
+able to import the extension module or its members using any of the
+different forms of the ``import`` statement.
+
+
 Module reference
 ================
 
-There are two functions and a constant:
+The public API comprises two functions and a constant:
 
 **autocython.ensure_extensions_compiled(folder, names=None)**
 
@@ -214,7 +273,10 @@ There are two functions and a constant:
    neccesary on Python 3, which does a similar thing automatically if
    you use an ordinary import (On Python 3 ``PLATFORM_SUFFIX`` is an
    empty string). ``fullname`` must be a fully qualified, absolute
-   import.
+   import. This function also inserts the module into sys.modules
+   under the name fullname, and hence it will be available for
+   ordinary import without this function, so long as this function is
+   called once first (say in the ``__init__.py`` of the package)
 
 ``autocython.PLATFORM_SUFFIX``
 

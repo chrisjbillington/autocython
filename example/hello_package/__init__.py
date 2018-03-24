@@ -15,5 +15,5 @@ from autocython import ensure_extensions_compiled, import_extension
 this_folder = os.path.dirname(os.path.abspath(__file__))
 
 ensure_extensions_compiled(this_folder)
-module = import_extension('hello_package.hello_module')
-hello = module.hello
+hello_module = import_extension('hello_package.hello_module')
+hello = hello_module.hello

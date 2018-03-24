@@ -14,25 +14,6 @@ autocython |release|
 | `Read the docs <http://autocython.readthedocs.org>`_
 
 ------------
-Installation
-------------
-
-to install ``autocython``, run:
-
-.. code-block:: bash
-
-    $ pip3 install autocython
-
-or to install from source:
-
-.. code-block:: bash
-
-    $ python3 setup.py install
-
-.. note::
-    Works with Python 2.7 or Python 3.4+
-
-------------
 Introduction
 ------------
 
@@ -79,17 +60,37 @@ changes.
     Python 2.7: http://aka.ms/vcpython27.
     Python 3.5+:"Microsoft Visual C++ Build Tools", from http://aka.ms/BuildTools
 
+------------
+Installation
+------------
+
+to install ``autocython``, run:
+
+.. code-block:: bash
+
+    $ pip3 install autocython
+
+or to install from source:
+
+.. code-block:: bash
+
+    $ python3 setup.py install
+
+.. note::
+    Works with Python 2.7 or Python 3.4+
+
+
 -------------
 Example usage
 -------------
 
-Below is an example of how to use autocython from a script. All recompilation is triggered by imports.
+Below is an example of how to use autocython in a package. All recompilation is triggered by imports.
 
 .. note::
     You can also check and trigger recompilation by running ``python -m
     autocython`` in the directory containing the ``.pyx`` files and your
     ``setup.py``. This can be a more convenient way to compile for a specific
-    program than having to actually run the program doing the imports.
+    platform than having to actually run the program doing the imports.
 
 This example has a top-level script ``example.py`` which imports the ``hello``
 function from a package ``hello_package``:
@@ -102,7 +103,7 @@ function from a package ``hello_package``:
     hello()
 
 That package's ``__init__.py`` imports the ``hello`` function from a Cython
-extension ``hello_module.pyx``using ``autocython``, after using all extensions in
+extension ``hello_module.pyx`` using ``autocython``, after ensuring all extensions in
 the folder are up to date:
 
 .. code-block:: python
@@ -113,14 +114,15 @@ the folder are up to date:
     from autocython import ensure_extensions_compiled, import_extension
     this_folder = os.path.dirname(os.path.abspath(__file__))
     ensure_extensions_compiled(this_folder)
-    module = import_extension('hello_package.hello_module')
-    hello = module.hello
+    hello_module = import_extension('hello_package.hello_module')
+    hello = hello_module.hello
 
 Note that it is important that the import line given to
-``import_extension`` is a fully qualified, absolute import. If you are only
-using Python 3, ``import_extension()`` is unnecessary and you can just use
-a normal import line (though you should still use it if your code needs to run on
-both Python 2 and 3)
+:func:`~autocython.import_extension` is a fully qualified, absolute import. If you
+are only using Python 3, :func:`~autocython.import_extension` is unnecessary
+and you can just use a normal import line (though you should still use
+:func:`~autocython.import_extension` if your code needs to run on both Python 2
+and 3)
 
 The Cython extension in the package is:
 
@@ -151,13 +153,14 @@ extension:
         ext_modules = ext_modules,
     )
 
-Use of ``setuptools`` is crucial on Windows, otherwise ``distutils`` will not be
-able to find the Microsoft compilers. Importing ``PLATFORM_SUFFIX`` and appending
-it to the extension name allows each version of the extension to have a platform-
-specific unique name on Python 2 (``import_extension()`` makes sure it gets the
-right one at import time). If you are only using Python 3, you don't need to add
-this suffix, but you still should if your code needs to run on both Pytohn 2 and 3
-(in Python 3 ``PLATFORM_SUFFIX`` is just an empty string)
+Use of ``setuptools`` is crucial on Windows, otherwise compilation will not be able
+to find the Microsoft compilers. Importing :attr:`~autocython.PLATFORM_SUFFIX` and
+appending it to the extension name allows each version of the extension to have a
+platform- specific unique name on Python 2 (:func:`~autocython.import_extension`
+makes sure it gets the right one at import time). If you are only using Python 3,
+you don't need to add this suffix, but you still should if your code needs to run
+on both Pytohn 2 and 3 (in Python 3 :attr:`~autocython.PLATFORM_SUFFIX` is just an
+empty string)
 
 The result of all this is:
 
@@ -185,11 +188,56 @@ The result of all this is:
     hello_module_py27_linux2_64bit.so             __init__.pyc
 
 
+-----------
+Limitations
+-----------
+
+.. note::
+    The following limitation only applies to Python 2.
+
+When importing an extension from a package, provided that the package's
+``__init__.py`` uses :func:`~autocython.import_extension`, then the extension will
+be available for ordinary import. That is, in the above example, if ``example.py``
+had instead imported the hello function with the line:
+
+.. code-block:: python
+
+    from hello_package.hello_module import hello
+    hello()
+
+everything would have still been fine. However, importing extensions in the
+following way does not in general work with ``autocython``:
+
+.. code-block:: python
+
+    import hello_package.hello_module
+    hello_package.hello_module.hello()
+
+This may fail with ``AttributeError: 'module' object has no attribute
+'hello_module'``, since even though the import succeeded, Python thinks that
+``hello_package.hello_module`` is getting an attribute from the ``hello_package``,
+as opposed to being the name of a submodule. This is a side effect of
+:func:`~autocython.import_extension` renaming the extension module after import to
+remove :attr:`~autocython.PLATFORM_SUFFIX`.
+
+The workaround, as done in the above example, is to ensure that ``hello_module``
+`is` an attribute of ``hello_package``, by making the import line in your package's
+``__init__.py`` look like:
+
+.. code-block:: python
+
+    hello_module = import_extension('hello_package.hello_module')
+
+with the extension module assigned to a variable with the same name as the
+extension module itself. If you do this then importers will be able to import the
+extension module or its members using any of the different forms of the ``import``
+statement.
+
 ----------------
 Module reference
 ----------------
 
-There are two functions and a constant:
+The public API comprises two functions and a constant:
 
 .. autofunction:: autocython.ensure_extensions_compiled
 

@@ -6,18 +6,6 @@ autocython 1.1
 | `View on BitBucket <https://bitbucket.org/cbillington/autocython>`_
 | `Read the docs <http://autocython.readthedocs.org>`_
 
-* Introduction
-
-* Installation
-
-* Example usage
-
-* Limitations
-
-* Module reference
-
-View on PyPI | View on BitBucket | Read the docs
-
 
 Introduction
 ============
